@@ -62,6 +62,13 @@ The pre-commit `nph` hook, the CI `nph --check` step, and the local `just lint`/
 all assume the SAME nph version (currently 0.7.0). Bump in all three places together,
 or skew will cause "format clean locally, fails in CI" footguns.
 
+### `nph --check` scope
+In CI (`jiro4989/setup-nim-action@v2`), the action vendors the full Nim source tree under
+`.nim_runtime/`. Running `nph --check .` recurses into it and crashes on
+`nimsuggest/tests/tconcept1.nim` (intentionally malformed; nph 0.7.0 SIGSEGVs, exit 139).
+The `ci.yml` here uses `nph --check src tests` for that reason. The pre-commit hook is
+unaffected (operates on git-tracked files only, and `.nim_runtime/` is gitignored).
+
 ### `mkdocstrings-nim` requires `default_handler: nim`
 Without `default_handler: nim` in mkdocs.yml, mkdocstrings 1.x routes documentation blocks
 to a non-existent `python` handler and the build fails with a confusing
