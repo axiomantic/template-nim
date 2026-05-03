@@ -14,12 +14,23 @@ jobs:
         with: { python-version: "3.12" }
       - uses: jiro4989/setup-nim-action@v2
         with: { nim-version: stable }
-      - name: Install Nim compiler module
-        # mkdocstrings-nim's extractor compiles a Nim program that imports
-        # `compiler/ast` etc. setup-nim-action does not put the compiler
-        # package on Nim's default search path, so install it via nimble.
-        # (Package name is `compiler`, aliased upstream to `nim`.)
-        run: nimble install -y compiler
+      - name: Make Nim compiler module importable
+        # mkdocstrings-nim's extractor compiles a helper that does
+        # `import compiler/ast` etc. The compiler module ships at
+        # `<nim_install>/compiler/`, but Nim's default search path only
+        # includes `<nim_install>/lib/...`. `nimble install -y compiler`
+        # is a no-op against jiro4989/setup-nim-action's binary install
+        # (the `compiler` package was renamed to `nim` and the alias short-
+        # circuits when a nim binary is already present). Instead, write a
+        # user-level nim.cfg that adds the install root to the search path,
+        # making `compiler/ast` resolvable for every subsequent `nim c`.
+        run: |
+          NIM_ROOT="$(dirname "$(dirname "$(command -v nim)")")"
+          mkdir -p "$HOME/.config/nim"
+          echo "--path:\"$NIM_ROOT\"" >> "$HOME/.config/nim/nim.cfg"
+          echo "Added $NIM_ROOT to nim search path"
+          echo 'import compiler/ast; echo "compiler/ast resolves OK"' > /tmp/_compiler_check.nim
+          nim c -r /tmp/_compiler_check.nim
       - name: Install mkdocs (nim variant)
         run: pip install mkdocs-material mkdocstrings-nim
       - name: Build
