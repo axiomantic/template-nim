@@ -14,6 +14,12 @@ jobs:
         with: { python-version: "3.12" }
       - uses: jiro4989/setup-nim-action@v2
         with: { nim-version: stable }
+      - name: Install Nim compiler module
+        # mkdocstrings-nim's extractor compiles a Nim program that imports
+        # `compiler/ast` etc. setup-nim-action does not put the compiler
+        # package on Nim's default search path, so install it via nimble.
+        # (Package name is `compiler`, aliased upstream to `nim`.)
+        run: nimble install -y compiler
       - name: Install mkdocs (nim variant)
         run: pip install mkdocs-material mkdocstrings-nim
       - name: Build

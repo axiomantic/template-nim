@@ -26,9 +26,14 @@ jobs:
       - name: nimble install deps
         run: nimble install --depsOnly -y
       - name: nph format check
+        # Scope to project source dirs only. `nph --check .` would recurse into
+        # `.nim_runtime/` (the Nim source tree pulled in by setup-nim-action)
+        # and segfault on malformed test files (e.g. nimsuggest/tests/tconcept1.nim).
+        # The pre-commit hook already operates only on tracked .nim files, so this
+        # matches local behavior.
         run: |
           nimble install -y nph@0.7.0   # PIN: must match .pre-commit-config.yaml local nph hook
-          nph --check .
+          nph --check src tests
         continue-on-error: ${{ matrix.nim-version == 'devel' }}
       - name: nimble check
         run: nimble check
