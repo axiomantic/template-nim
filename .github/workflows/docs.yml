@@ -1,0 +1,22 @@
+name: Docs
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+  pages: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: jiro4989/setup-nim-action@v2
+        with: { nim-version: stable }
+      - name: Install mkdocs (nim variant)
+        run: pip install mkdocs-material mkdocstrings-nim
+      - name: Build
+        run: mkdocs build --strict
+      - name: Deploy to gh-pages
+        run: mkdocs gh-deploy --force

@@ -1,0 +1,17 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  github-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jiro4989/setup-nim-action@v2
+        with: { nim-version: stable }
+      - run: nimble build -d:release
+      - uses: softprops/action-gh-release@v3
+        with:
+          generate_release_notes: true

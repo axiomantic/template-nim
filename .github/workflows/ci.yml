@@ -1,0 +1,38 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        # To enable macOS testing (10x cost on private repos), add:
+        #   - macos-latest
+        nim-version: [stable, "2.2.6", devel]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jiro4989/setup-nim-action@v2
+        with:
+          nim-version: ${{ matrix.nim-version }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nimble
+          key: nimble-${{ runner.os }}-${{ hashFiles('**/*.nimble') }}
+      - name: nimble install deps
+        run: nimble install --depsOnly -y
+      - name: nph format check
+        run: |
+          nimble install -y nph@0.7.0   # PIN: must match .pre-commit-config.yaml local nph hook
+          nph --check .
+        continue-on-error: ${{ matrix.nim-version == 'devel' }}
+      - name: nimble check
+        run: nimble check
+        continue-on-error: ${{ matrix.nim-version == 'devel' }}
+      - name: Test
+        run: nimble test
+        continue-on-error: ${{ matrix.nim-version == 'devel' }}
