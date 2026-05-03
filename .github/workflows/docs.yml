@@ -29,8 +29,8 @@ jobs:
           mkdir -p "$HOME/.config/nim"
           echo "--path:\"$NIM_ROOT\"" >> "$HOME/.config/nim/nim.cfg"
           echo "Added $NIM_ROOT to nim search path"
-          echo 'import compiler/ast; echo "compiler/ast resolves OK"' > /tmp/_compiler_check.nim
-          nim c -r /tmp/_compiler_check.nim
+          echo 'import compiler/ast; echo "compiler/ast resolves OK"' > /tmp/compiler_check.nim
+          nim c -r /tmp/compiler_check.nim
       - name: Install mkdocs (nim variant)
         run: pip install mkdocs-material mkdocstrings-nim
       - name: Build
