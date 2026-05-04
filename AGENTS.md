@@ -29,13 +29,6 @@ Tests live in `tests/` and are discovered by `nimble test`.
 - **Formatting authority:** `nph` (pinned to v0.7.0 in pre-commit, ci.yml, and CLAUDE.md Setup).
 - **Pre-commit guard:** `nph` and `nimble check` on commit. No pre-push stage (Nim has no slow type-check analogue to mypy).
 
-## Gotchas
-
-- **CI tool scoping:** Always scope formatters/checkers to `src tests` (not `.`) —
-  `jiro4989/setup-nim-action@v2` vendors a copy of the Nim source tree at `.nim_runtime/`
-  containing intentionally malformed test fixtures (e.g. `nimsuggest/tests/tconcept1.nim`)
-  that crash nph 0.7.0 with SIGSEGV.
-
 ## The justfile is the canonical command surface
 
 `nimble` is an implementation detail. Add new dev workflows as `just` recipes,
